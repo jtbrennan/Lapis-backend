@@ -1,0 +1,21 @@
+{
+  "name": "Lapis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server"
+  },
+  "author": "John Brennan",
+  "license": "copyright. John Brennan",
+  "dependencies": {
+    "express": "^4.21.2",
+    "@pinecone-database/pinecone": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "openai": "^4.87.3",
+    "pinecone": "^0.1.0",
+    "pinecone-client": "^2.0.0"
+  }
+}
