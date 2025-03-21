@@ -1,11 +1,10 @@
 import express from "express";
 import OpenAI from "openai";
-import pkg from "@pinecone-database/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const { Pinecone } = pkg;
 const app = express();
 const port = process.env.PORT || 4000;
 
