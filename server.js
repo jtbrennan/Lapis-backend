@@ -2,6 +2,7 @@ import express from "express";
 import OpenAI from "openai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("working");

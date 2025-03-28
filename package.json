@@ -10,10 +10,10 @@
   "author": "John Brennan",
   "license": "copyright. John Brennan",
   "dependencies": {
-    "express": "^4.21.2",
     "@pinecone-database/pinecone": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "openai": "^4.87.3",
     "pinecone": "^0.1.0",
     "pinecone-client": "^2.0.0"
