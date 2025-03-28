@@ -61,11 +61,12 @@ app.post("/embedding", async (req, res) => {
     // Upsert with metadata
     console.log("Upserting embedding into Pinecone...");
     await index.upsert([
-      { 
-        id: id, 
+      {
+        id: id,
         values: embedding,
         metadata: {
           text: text,
+          documentId: documentId, 
           title: title,
           teamId: teamId,
           organizationId: organizationId,
