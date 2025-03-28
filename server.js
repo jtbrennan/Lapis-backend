@@ -28,19 +28,20 @@ const pinecone = new Pinecone({
 const index = pinecone.Index("lapis-01");
 
 app.post("/embedding", async (req, res) => {
-  const { text, id, title, teamId, organizationId } = req.body;
+  const { text, id, documentId, title, teamId, organizationId } = req.body;
 
   console.log("Received request to /embedding");
   console.log("Request body:", req.body);
 
   // Validate required fields
-  if (!text || !id || !title || !teamId || !organizationId) {
+  if (!text || !id || !title || !teamId || !organizationId || !documentId) {
     console.log("Missing required fields in request");
     return res.status(400).json({ 
-      error: "Text, ID, title, teamId, and organizationId are required.",
+      error: "Text, ID, documentId, title, teamId, and organizationId are required.",
       missingFields: {
         text: !text,
         id: !id,
+        documentId: !documentId,
         title: !title,
         teamId: !teamId,
         organizationId: !organizationId
@@ -66,7 +67,7 @@ app.post("/embedding", async (req, res) => {
         values: embedding,
         metadata: {
           text: text,
-          documentId: documentId, 
+          documentId: documentId, // Explicitly use the documentId from the request
           title: title,
           teamId: teamId,
           organizationId: organizationId,
@@ -80,6 +81,7 @@ app.post("/embedding", async (req, res) => {
       message: "Embedding stored successfully!", 
       details: {
         id,
+        documentId,
         title,
         teamId,
         organizationId
