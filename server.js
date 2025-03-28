@@ -102,10 +102,18 @@ app.post("/search", async (req, res) => {
     query, 
     topK = 5, 
     namespace = "default", 
-    filter = {},
+    teamId, // Add optional teamId parameter
     includeMetadata = true,
     includeValues = false
   } = req.body;
+
+  // Validate that teamId is provided
+  if (!teamId) {
+    return res.status(400).json({
+      error: "Team ID is required for search",
+      message: "Please provide a teamId to filter your search"
+    });
+  }
 
   try {
     // Generate embedding for the query
@@ -116,11 +124,13 @@ app.post("/search", async (req, res) => {
 
     const queryVector = embeddingResponse.data[0].embedding;
 
-    // Perform hybrid search
+    // Perform search with teamId filter
     const searchResponse = await index.namespace(namespace).query({
       topK,
       vector: queryVector,
-      filter,
+      filter: {
+        teamId: teamId // Add teamId filter
+      },
       includeMetadata,
       includeValues
     });
