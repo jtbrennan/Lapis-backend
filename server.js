@@ -95,6 +95,82 @@ app.post("/embedding", async (req, res) => {
   }
 });
 
+app.post("/search", async (req, res) => {
+  const { 
+    query, 
+    topK = 5, 
+    namespace = "default", 
+    filter = {},
+    includeMetadata = true,
+    includeValues = false
+  } = req.body;
+
+  try {
+    // Generate embedding for the query
+    const embeddingResponse = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: query
+    });
+
+    const queryVector = embeddingResponse.data[0].embedding;
+
+    // Perform hybrid search
+    const searchResponse = await index.namespace(namespace).query({
+      topK,
+      vector: queryVector,
+      filter,
+      includeMetadata,
+      includeValues
+    });
+
+    res.json({
+      message: "Search completed successfully",
+      results: searchResponse.matches || []
+    });
+
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ 
+      error: "Failed to perform search",
+      details: error.message 
+    });
+  }
+});
+
+// Test route for search
+app.get("/test-search", async (req, res) => {
+  try {
+    const testQuery = "Example search query";
+    
+    // Generate embedding for test query
+    const embeddingResponse = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: testQuery
+    });
+
+    const queryVector = embeddingResponse.data[0].embedding;
+
+    // Perform test search
+    const searchResponse = await index.namespace("default").query({
+      topK: 5,
+      vector: queryVector,
+      includeMetadata: true
+    });
+
+    res.json({
+      testQuery,
+      results: searchResponse.matches || []
+    });
+  } catch (error) {
+    console.error("Test search error:", error);
+    res.status(500).json({ 
+      error: "Failed to perform test search",
+      details: error.message 
+    });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
