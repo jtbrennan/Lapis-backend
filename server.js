@@ -102,13 +102,15 @@ app.post("/search", async (req, res) => {
     query, 
     topK = 5, 
     namespace = "default", 
-    teamId, // Add optional teamId parameter
+    teamId,
     includeMetadata = true,
     includeValues = false
   } = req.body;
 
-  // Validate that teamId is provided
+  console.log("Search request received:", { query, teamId }); // Add this
+
   if (!teamId) {
+    console.log("Team ID missing in search request"); // Add this
     return res.status(400).json({
       error: "Team ID is required for search",
       message: "Please provide a teamId to filter your search"
@@ -116,24 +118,29 @@ app.post("/search", async (req, res) => {
   }
 
   try {
-    // Generate embedding for the query
+    console.log("Generating embedding for query..."); // Add this
     const embeddingResponse = await openai.embeddings.create({
       model: "text-embedding-ada-002",
       input: query
     });
 
     const queryVector = embeddingResponse.data[0].embedding;
+    console.log("Query embedding generated"); // Add this
 
-    // Perform search with teamId filter
-    const searchResponse = await index.namespace(namespace).query({
+    const searchOptions = {
       topK,
       vector: queryVector,
       filter: {
-        teamId: teamId // Add teamId filter
+        teamId: teamId
       },
       includeMetadata,
       includeValues
-    });
+    };
+
+    console.log("Searching Pinecone with options:", searchOptions); // Add this
+    
+    const searchResponse = await index.namespace(namespace).query(searchOptions);
+    console.log("Pinecone search response:", searchResponse); // Add this
 
     res.json({
       message: "Search completed successfully",
