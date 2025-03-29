@@ -97,6 +97,71 @@ app.post("/embedding", async (req, res) => {
   }
 });
 
+app.post("/search", async (req, res) => {
+  const { query, teamId, organizationId, topK = 5 } = req.body;
+
+  // Validate required fields
+  if (!query || !teamId || !organizationId) {
+    return res.status(400).json({
+      error: "Query, teamId, and organizationId are required.",
+      missingFields: {
+        query: !query,
+        teamId: !teamId,
+        organizationId: !organizationId
+      }
+    });
+  }
+
+  try {
+    console.log("Generating embedding for search query...");
+    // Generate embedding for the search query
+    const response = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input: query
+    });
+
+    const queryEmbedding = response.data[0].embedding;
+
+    console.log("Querying Pinecone for similar embeddings...");
+    // Query Pinecone with the embedding
+    const results = await index.query({
+      topK: Number(topK),
+      vector: queryEmbedding,
+      filter: {
+        teamId: { "$eq": teamId },
+        organizationId: { "$eq": organizationId }
+      },
+      includeMetadata: true
+    });
+
+    console.log("Search results:", results);
+    
+    // Format the results for the client
+    const formattedResults = results.matches.map(match => ({
+      id: match.id,
+      score: match.score,
+      text: match.metadata?.text,
+      documentId: match.metadata?.documentId,
+      title: match.metadata?.title,
+      teamId: match.metadata?.teamId,
+      organizationId: match.metadata?.organizationId,
+      createdAt: match.metadata?.createdAt
+    }));
+
+    res.json({
+      query: query,
+      results: formattedResults
+    });
+
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({
+      error: "Failed to perform search.",
+      details: error.message
+    });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
